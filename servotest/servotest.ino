@@ -89,6 +89,8 @@ void setup() {
   UR.attach(upperR);
   LR.attach(lowerR);
 
+  p
+
   Wire.begin();
   Wire.beginTransmission(MPU);
   Wire.write(0x6B); 
