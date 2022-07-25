@@ -1,6 +1,7 @@
 #include <Servo.h>
 #include <Wire.h>
 #include <math.h>
+#in
 
 //Servo pin definitions
 int upperL = A6;
@@ -62,6 +63,34 @@ void rotatel() {
   digitalWrite(rb, LOW);
 }
 
+void jump() {
+  loop()
+  //Create a for loop to 90 to create a slower lowing effect
+  for (int i = 0; i < 90; i++) {
+    //Set the servo position
+    //Set all the servo positions to the same value
+    lowerL.write(i);
+    upperL.write(i);
+    lowerR.write(i);
+    upperR.write(i);
+    //Wait for 1ms
+    delay(1);
+  }
+  delay(1000);
+  //Set all the servo positions to 0
+  lowerL.write(0);
+  upperL.write(0);
+  lowerR.write(0);
+  upperR.write(0);
+  //while AcX is positive check gyroscope
+  float[] gyroPos = {};
+  while (acx > 0) {
+    getGyro();
+    delay(50);
+    
+  }
+}
+
 const int MPU = 0x68;
 int16_t AcX,AcY,AcZ,Tmp,GyX,GyY,GyZ;
 
@@ -89,8 +118,6 @@ void setup() {
   UR.attach(upperR);
   LR.attach(lowerR);
 
-  p
-
   Wire.begin();
   Wire.beginTransmission(MPU);
   Wire.write(0x6B); 
@@ -113,4 +140,21 @@ void setup() {
 
 void loop() {
   getGyro();
+
+  //If GyX is positive, move forward
+  if (GyX > 0) {
+    forward();
+  }
+  //If GyX is negative, move backward
+  else if (GyX < 0) {
+    backward();
+  }
+  //If GyX is 0, halt
+  else {
+    halt();
+  }
+  //if random int between 0 and 100 is equal to 69 (69% chance), jump
+  if (random(0, 100) == 69) {
+    jump();
+  }
 }
