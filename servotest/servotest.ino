@@ -64,7 +64,6 @@ void rotatel() {
 }
 
 void jump() {
-  loop()
   //Create a for loop to 90 to create a slower lowing effect
   for (int i = 0; i < 90; i++) {
     //Set the servo position
@@ -84,10 +83,11 @@ void jump() {
   upperR.write(0);
   //while AcX is positive check gyroscope
   float[] gyroPos = {};
-  while (acx > 0) {
+  while (AcX > 0) {
     getGyro();
     delay(50);
-    
+    //add the current AcX value to the gyroPos array
+    gyroPos[] += AcX;
   }
 }
 
