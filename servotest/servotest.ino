@@ -1,22 +1,33 @@
 #include <Servo.h>
 #include <Wire.h>
 #include <math.h>
-#in
 
 //Servo pin definitions
-int upperL = A6;
-int lowerL = A7;
+int upperL = 12;
+int lowerL = 11;
 int upperR = 10;
 int lowerR = 9;
+
+//Declare servos
+Servo UL;
+Servo LL;
+Servo UR;
+Servo LR;
+
+const int MPU = 0x68;
+int16_t AcX,AcY,AcZ,Tmp,GyX,GyY,GyZ;
 
 //TB6612FNG pin definitions
 int lsp = 5;
 int rsp = 4;
 //Left/right drive
-int lf = 8;
+int lf = 6;
 int lb = 7;
 int rf = 3;
 int rb = 4;
+
+int motorData[6];
+//lsp, rsp, UL, LL, UR, LR
 
 void halt() {
   //NOTE: DOES NOT SET SPEED TO 0
@@ -28,14 +39,21 @@ void halt() {
 
 void driveSpeed(int lSpeed, int rSpeed = -1) {
   //Calling this method allows for 1 or 2 arguments.
+  lSpeed, rSpeed = abs(lSpeed), abs(rSpeed); ;
+  motorData[0], motorData[1] = motorData[0] < 0 ? -lSpeed : lSpeed, motorData[1] < 0 ? -rSpeed : rSpeed;
   if (rSpeed < 0) {
-    lsp, rsp = lSpeed;
+    motorData[0], motorData[1] = lSpeed, lSpeed;
+    analogWrite(lsp, lSpeed);
+    analogWrite(rsp, lSpeed);
     return;
   }
-  lsp, rsp = lSpeed, rSpeed;
+  motorData[0], motorData[1] = lSpeed, rSpeed;
+  analogWrite(lsp, lSpeed);
+  analogWrite(rsp, rSpeed);
 }
 
 void forward() {
+  motorData[0], motorData[1] = abs(motorData[0]), abs(motorData[1]);
   digitalWrite(lf, HIGH);
   digitalWrite(lb, LOW);
   digitalWrite(rf, HIGH);
@@ -43,6 +61,7 @@ void forward() {
 }
 
 void backward() {
+  motorData[0], motorData[1] = -abs(motorData[0]), -abs(motorData[1]);
   digitalWrite(lf, LOW);
   digitalWrite(lb, HIGH);
   digitalWrite(rf, LOW);
@@ -50,6 +69,7 @@ void backward() {
 }
 
 void rotateR() {
+  motorData[0], motorData[1] = abs(motorData[0]), -abs(motorData[1]);
   digitalWrite(lf, HIGH);
   digitalWrite(lb, LOW);
   digitalWrite(rf, LOW);
@@ -57,6 +77,7 @@ void rotateR() {
 }
 
 void rotatel() {
+  motorData[0], motorData[1] = -abs(motorData[0]), abs(motorData[1]);
   digitalWrite(lf, LOW);
   digitalWrite(lb, HIGH);
   digitalWrite(rf, HIGH);
@@ -68,31 +89,28 @@ void jump() {
   for (int i = 0; i < 90; i++) {
     //Set the servo position
     //Set all the servo positions to the same value
-    lowerL.write(i);
-    upperL.write(i);
-    lowerR.write(i);
-    upperR.write(i);
+    LL.write(i);
+    UL.write(i);
+    LR.write(i);
+    UR.write(i);
     //Wait for 1ms
     delay(1);
   }
   delay(1000);
   //Set all the servo positions to 0
-  lowerL.write(0);
-  upperL.write(0);
-  lowerR.write(0);
-  upperR.write(0);
+  LL.write(0);
+  UL.write(0);
+  LR.write(0);
+  UR.write(0);
   //while AcX is positive check gyroscope
-  float[] gyroPos = {};
+  //float[] gyroPos = {}
   while (AcX > 0) {
     getGyro();
     delay(50);
     //add the current AcX value to the gyroPos array
-    gyroPos[] += AcX;
+    //gyroPos[] += AcX;
   }
 }
-
-const int MPU = 0x68;
-int16_t AcX,AcY,AcZ,Tmp,GyX,GyY,GyZ;
 
 void getGyro() {
   Wire.beginTransmission(MPU);
@@ -107,12 +125,14 @@ void getGyro() {
   GyZ=Wire.read()<<8|Wire.read(); 
 }
 
+void sendData() {
+  Wire.beginTransmission(69);//Begin transmission to nodeMCU
+  Wire.write(itoa(motorData));//Send the data
+  Wire.endTransmission();//End transmission
+}
+
 void setup() {
   // Setup servo motors
-  Servo UL;
-  Servo LL;
-  Servo UR;
-  Servo LR;
   UL.attach(upperL);
   LL.attach(lowerL);
   UR.attach(upperR);
@@ -120,7 +140,7 @@ void setup() {
 
   Wire.begin();
   Wire.beginTransmission(MPU);
-  Wire.write(0x6B); 
+  Wire.write(0x6B);
   Wire.write(0);    
   Wire.endTransmission(true);
 
@@ -153,7 +173,7 @@ void loop() {
   else {
     halt();
   }
-  //if random int between 0 and 100 is equal to 69 (69% chance), jump
+  //if random int between 0 and 100 is equal to 69 (1% chance), jump
   if (random(0, 100) == 69) {
     jump();
   }
