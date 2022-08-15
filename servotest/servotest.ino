@@ -160,6 +160,7 @@ void setup() {
 
 void loop() {
   getGyro();
+  //Add a map to calculate the required speed for the motors
 
   //If GyX is positive, move forward
   if (GyX > 0) {
