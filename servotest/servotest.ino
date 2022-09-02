@@ -127,7 +127,11 @@ void getGyro() {
 
 void sendData() {
   Wire.beginTransmission(69);//Begin transmission to nodeMCU
-  Wire.write(itoa(motorData));//Send the data
+  char newotData[6];
+  for (int i = 0; i < 6; i++) {
+    newotData[i] = char(motorData[i]);
+  }
+  Wire.write(newotData);//Send the data
   Wire.endTransmission();//End transmission
 }
 
