@@ -14,6 +14,8 @@ Servo LL;
 Servo UR;
 Servo LR;
 
+Servo servoes[4] = {UL, LL, UR, LR};
+
 const int MPU = 0x68;
 int16_t AcX,AcY,AcZ,Tmp,GyX,GyY,GyZ;
 
@@ -165,7 +167,15 @@ void setup() {
 void loop() {
   getGyro();
   //Add a map to calculate the required speed for the motors
-
+  while (true) {
+    for (int i = 0; i <4; i++) {
+      servoes[i].write(0);
+    }
+    delay(1000);
+    for (int i = 0; i <4; i++) {
+      servoes[i].write(90);
+    }
+  }
   //If GyX is positive, move forward
   if (GyX > 0) {
     forward();
