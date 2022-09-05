@@ -1,6 +1,15 @@
 #include <Servo.h>
 #include <Wire.h>
 #include <math.h>
+#include <SPI.h>
+#include "Mirf.h"
+#include "nRF24L01.h"
+#include "MirfHardwareSpiDriver.h"
+
+//Add declarations for pins 
+int data[3];
+int value;
+int datavalues[6];
 
 //Servo pin definitions
 int upperL = 12;
@@ -38,6 +47,8 @@ void halt() {
   digitalWrite(rf, LOW);
   digitalWrite(rb, LOW);
 }
+
+Nrf24l Mirf = Nrf24l(10, 9);
 
 void driveSpeed(int lSpeed, int rSpeed = -1) {
   //Calling this method allows for 1 or 2 arguments.
@@ -151,6 +162,15 @@ void setup() {
   Wire.endTransmission(true);
 
   Serial.begin(9600);
+
+  Mirf.spi = &MirfHardwareSpi;
+  Mirf.init();
+
+  Mirf.setRADDR((byte *)"BALLS"); //Set your own address (receiver address) using 5 characters
+  Mirf.payload = sizeof(data);
+  Mirf.channel = 90;             //Set the used channel
+  Mirf.config();
+  Serial.println("Radio frequency initialized");
 }
 
 /**
@@ -192,4 +212,19 @@ void loop() {
   if (random(0, 100) == 69) {
     jump();
   }
+  if (Mirf.dataReady()) {
+    Mirf.getData((byte *) data);//Read data and store to data variable
+    //interpret the data
+    datavalues[int(data[0])] = int(data[1, data.length() - 1]);
+  }
 }
+
+/**
+ * prefixes
+ * 1 = LJSX
+ * 2 = LJSY
+ * 3 = RJSX
+ * 4 = RJSY
+ * 5 = LSW
+ * 6 = RSW 
+ */
