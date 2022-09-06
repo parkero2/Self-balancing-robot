@@ -6,6 +6,8 @@
 #include "nRF24L01.h"
 #include "MirfHardwareSpiDriver.h"
 
+int AcXoff, AcYoff, AcZoff, GyXoff, GyYoff, GyZoff;
+
 //Add declarations for pins 
 int data[3];
 int value;
@@ -118,24 +120,47 @@ void jump() {
   //while AcX is positive check gyroscope
   //float[] gyroPos = {}
   while (AcX > 0) {
-    getGyro();
+    getGyro(false);
     delay(50);
     //add the current AcX value to the gyroPos array
     //gyroPos[] += AcX;
   }
 }
 
-void getGyro() {
+void getGyro(bool inisisalize) {
   Wire.beginTransmission(MPU);
   Wire.write(0x3B);  
   Wire.endTransmission(false);
   Wire.requestFrom(MPU,12,true);  
-  AcX=Wire.read()<<8|Wire.read();    
-  AcY=Wire.read()<<8|Wire.read();  
-  AcZ=Wire.read()<<8|Wire.read();  
-  GyX=Wire.read()<<8|Wire.read();  
-  GyY=Wire.read()<<8|Wire.read();  
-  GyZ=Wire.read()<<8|Wire.read(); 
+
+  if (inisisalize) {
+    AcX=Wire.read()<<8|Wire.read(); 
+    AcY=Wire.read()<<8|Wire.read();  
+    AcZ=Wire.read()<<8|Wire.read();  
+    GyX=Wire.read()<<8|Wire.read();  
+    GyY=Wire.read()<<8|Wire.read();  
+    GyZ=Wire.read()<<8|Wire.read(); 
+  }
+  else {
+    AcX=Wire.read()<<8|Wire.read(); 
+    AcY=Wire.read()<<8|Wire.read();  
+    AcZ=Wire.read()<<8|Wire.read();  
+    GyX=Wire.read()<<8|Wire.read();  
+    GyY=Wire.read()<<8|Wire.read();  
+    GyZ=Wire.read()<<8|Wire.read(); 
+    AcX -= AcXoff;
+    AcY -= AcYoff;
+    AcZ -= AcZoff;
+    GyX -= GyXoff;
+    GyY -= GyYoff;
+    GyZ -= GyZoff;
+  }
+  Serial.print("AcX = "); Serial.print(AcX);
+  Serial.print(" | AcY = "); Serial.print(AcY);
+  Serial.print(" | AcZ = "); Serial.print(AcZ);
+  Serial.print(" | GyX = "); Serial.print(GyX);
+  Serial.print(" | GyY = "); Serial.print(GyY);
+  Serial.print(" | GyZ = "); Serial.println(GyZ);
 }
 
 void sendData() {
@@ -171,6 +196,16 @@ void setup() {
   Mirf.channel = 90;             //Set the used channel
   Mirf.config();
   Serial.println("Radio frequency initialized");
+
+  getGyro(true);
+  AcXoff = AcX;
+  AcYoff = AcY;
+  AcZoff = AcZ;
+  GyXoff = GyX;
+  GyYoff = GyY;
+  GyZoff = GyZ;
+
+  driveSpeed(69);
 }
 
 /**
@@ -185,9 +220,9 @@ void setup() {
  */
 
 void loop() {
-  getGyro();
+  getGyro(false);
   //Add a map to calculate the required speed for the motors
-  while (true) {
+  while (false) {
     for (int i = 0; i <4; i++) {
       servoes[i].write(0);
     }
@@ -212,11 +247,11 @@ void loop() {
   if (random(0, 100) == 69) {
     jump();
   }
-  if (Mirf.dataReady()) {
+  /**if (Mirf.dataReady()) {
     Mirf.getData((byte *) data);//Read data and store to data variable
     //interpret the data
     datavalues[int(data[0])] = int(data[1, data.length() - 1]);
-  }
+  }*/
 }
 
 /**
