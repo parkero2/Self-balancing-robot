@@ -32,12 +32,12 @@ int16_t AcX,AcY,AcZ,Tmp,GyX,GyY,GyZ;
 
 //TB6612FNG pin definitions
 int lsp = 5;
-int rsp = 4;
+int rsp = 6;
 //Left/right drive
-int lf = 6;
-int lb = 7;
-int rf = 3;
-int rb = 4;
+int lf = 7;
+int lb = 8;
+int rf = 4;
+int rb = 3;
 
 int motorData[6];
 //lsp, rsp, UL, LL, UR, LR
@@ -50,7 +50,7 @@ void halt() {
   digitalWrite(rb, LOW);
 }
 
-Nrf24l Mirf = Nrf24l(10, 9);
+Nrf24l Mirf = Nrf24l(A1, A2);
 
 void driveSpeed(int lSpeed, int rSpeed = -1) {
   //Calling this method allows for 1 or 2 arguments.
@@ -134,12 +134,12 @@ void getGyro(bool inisisalize) {
   Wire.requestFrom(MPU,12,true);  
 
   if (inisisalize) {
-    AcX=Wire.read()<<8|Wire.read(); 
-    AcY=Wire.read()<<8|Wire.read();  
-    AcZ=Wire.read()<<8|Wire.read();  
-    GyX=Wire.read()<<8|Wire.read();  
-    GyY=Wire.read()<<8|Wire.read();  
-    GyZ=Wire.read()<<8|Wire.read(); 
+    AcXoff = Wire.read()<<8|Wire.read(); 
+    AcYoff = Wire.read()<<8|Wire.read();  
+    AcZoff = Wire.read()<<8|Wire.read();  
+    GyXoff = Wire.read()<<8|Wire.read();  
+    GyYoff = Wire.read()<<8|Wire.read();  
+    GyZoff = Wire.read()<<8|Wire.read(); 
   }
   else {
     AcX=Wire.read()<<8|Wire.read(); 
@@ -205,7 +205,7 @@ void setup() {
   GyYoff = GyY;
   GyZoff = GyZ;
 
-  driveSpeed(69);
+  driveSpeed(250, 250);
 }
 
 /**
@@ -243,15 +243,21 @@ void loop() {
   else {
     halt();
   }
-  //if random int between 0 and 100 is equal to 69 (1% chance), jump
+  /*if random int between 0 and 100 is equal to 69 (1% chance), jump
   if (random(0, 100) == 69) {
     jump();
-  }
+  }*/
   /**if (Mirf.dataReady()) {
     Mirf.getData((byte *) data);//Read data and store to data variable
     //interpret the data
     datavalues[int(data[0])] = int(data[1, data.length() - 1]);
-  }*/
+  }*//*
+  forward();
+  Serial.println("Forward");
+  delay(2000);
+  backward();
+  Serial.println("Backward");
+  delay(2000);*/
 }
 
 /**
