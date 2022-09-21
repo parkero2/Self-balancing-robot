@@ -2,9 +2,12 @@
 #include <Wire.h>
 #include <math.h>
 #include <SPI.h>
+#include <PID_v1.h>
 #include "Mirf.h"
 #include "nRF24L01.h"
 #include "MirfHardwareSpiDriver.h"
+
+int transistorPin;
 
 int AcXoff, AcYoff, AcZoff, GyXoff, GyYoff, GyZoff;
 
@@ -127,7 +130,7 @@ void jump() {
   }
 }
 
-void getGyro(bool inisisalize) {
+void getGyro(bool inisisalize = false) {
   Wire.beginTransmission(MPU);
   Wire.write(0x3B);  
   Wire.endTransmission(false);
@@ -141,20 +144,18 @@ void getGyro(bool inisisalize) {
     GyYoff = Wire.read()<<8|Wire.read();  
     GyZoff = Wire.read()<<8|Wire.read(); 
   }
-  else {
-    AcX=Wire.read()<<8|Wire.read(); 
-    AcY=Wire.read()<<8|Wire.read();  
-    AcZ=Wire.read()<<8|Wire.read();  
-    GyX=Wire.read()<<8|Wire.read();  
-    GyY=Wire.read()<<8|Wire.read();  
-    GyZ=Wire.read()<<8|Wire.read(); 
-    AcX -= AcXoff;
-    AcY -= AcYoff;
-    AcZ -= AcZoff;
-    GyX -= GyXoff;
-    GyY -= GyYoff;
-    GyZ -= GyZoff;
-  }
+  AcX=Wire.read()<<8|Wire.read(); 
+  AcY=Wire.read()<<8|Wire.read();  
+  AcZ=Wire.read()<<8|Wire.read();  
+  GyX=Wire.read()<<8|Wire.read();  
+  GyY=Wire.read()<<8|Wire.read();  
+  GyZ=Wire.read()<<8|Wire.read(); 
+  AcX -= AcXoff;
+  AcY -= AcYoff;
+  AcZ -= AcZoff;
+  GyX -= GyXoff;
+  GyY -= GyYoff;
+  GyZ -= GyZoff;
   Serial.print("AcX = "); Serial.print(AcX);
   Serial.print(" | AcY = "); Serial.print(AcY);
   Serial.print(" | AcZ = "); Serial.print(AcZ);
@@ -247,17 +248,31 @@ void loop() {
   if (random(0, 100) == 69) {
     jump();
   }*/
-  /**if (Mirf.dataReady()) {
+  if (Mirf.dataReady()) {
     Mirf.getData((byte *) data);//Read data and store to data variable
     //interpret the data
     datavalues[int(data[0])] = int(data[1, data.length() - 1]);
-  }*//*
+  }
+  for (int i = 0; i < 4; i++) {
+    //Create a loop to apply new datavalues
+    //Apply and calculate the new joycon values
+    int js = int(Math.floor(map(0, 250, -128, 128, datavalues[i]))); //This should be applied to the PID controller 
+  }
+  if ((datavalues[4] && datavalues[5])){
+    digitalWrite(transistorPin, HIGH);
+  }
+  else {
+    digitalWrite(transistorPin, LOW);
+  }
+  /*
   forward();
   Serial.println("Forward");
   delay(2000);
   backward();
   Serial.println("Backward");
   delay(2000);*/
+  //Control buffer
+  
 }
 
 /**
