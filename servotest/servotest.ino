@@ -2,7 +2,7 @@
 #include <Wire.h>
 #include <math.h>
 #include <SPI.h>
-#include <PID_v1.h>
+#include "ArduPID.h"
 #include "Mirf.h"
 #include "nRF24L01.h"
 #include "MirfHardwareSpiDriver.h"
@@ -206,7 +206,8 @@ void setup() {
   GyYoff = GyY;
   GyZoff = GyZ;
 
-  driveSpeed(250, 250);
+  driveSpeed(0, 0);
+  digitalWrite(LED_BUILTIN, HIGH);
 }
 
 /**
@@ -244,7 +245,7 @@ void loop() {
   else {
     halt();
   }
-  /*if random int between 0 and 100 is equal to 69 (1% chance), jump
+  /*if random int between 0 and 100 is equal to 69 (1% chance), jump  
   if (random(0, 100) == 69) {
     jump();
   }*/
@@ -271,8 +272,6 @@ void loop() {
   backward();
   Serial.println("Backward");
   delay(2000);*/
-  //Control buffer
-  
 }
 
 /**
