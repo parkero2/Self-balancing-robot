@@ -45,6 +45,8 @@ int rb = 3;
 int motorData[6];
 //lsp, rsp, UL, LL, UR, LR
 
+ArduPID myController;
+
 void halt() {
   //NOTE: DOES NOT SET SPEED TO 0
   digitalWrite(lf, LOW);
@@ -207,6 +209,9 @@ void setup() {
   GyZoff = GyZ;
 
   driveSpeed(0, 0);
+
+  //myController.begin()
+
   digitalWrite(LED_BUILTIN, HIGH);
 }
 
@@ -252,12 +257,12 @@ void loop() {
   if (Mirf.dataReady()) {
     Mirf.getData((byte *) data);//Read data and store to data variable
     //interpret the data
-    datavalues[int(data[0])] = int(data[1, data.length() - 1]);
+    datavalues[int(data[0]) + 1] = data[1, sizeof(data) - 1];
   }
   for (int i = 0; i < 4; i++) {
     //Create a loop to apply new datavalues
     //Apply and calculate the new joycon values
-    int js = int(Math.floor(map(0, 250, -128, 128, datavalues[i]))); //This should be applied to the PID controller 
+    int js = int(floor(map(0, 250, -128, 128, datavalues[i]))); //This should be applied to the PID controller 
   }
   if ((datavalues[4] && datavalues[5])){
     digitalWrite(transistorPin, HIGH);
