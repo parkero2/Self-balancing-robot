@@ -8,6 +8,8 @@ Nrf24l Mirf = Nrf24l(10, 9);
 int value[3];
 int datavalues[6];
 
+char *names[] = {"LJSX", "LJSY", "RJSX", "RJSY", "LSW", "RSW"};
+
 //Pin declarations
 //The joystick analog values (direction and intensity)
 const int LJSX = A0;
@@ -44,7 +46,7 @@ void setup()
 }
 
 void loop() {
-  for (int i = 0; i < 6; i++) //A loop to iterate through the sensors and their values
+  /**for (int i = 0; i < 6; i++) //A loop to iterate through the sensors and their values
   {
     if (i < 4)
     {
@@ -54,5 +56,9 @@ void loop() {
     }
     Mirf.send(byte(i + 1) + (byte *) digitalRead(pins[i]));
     while (Mirf.isSending());
+  }*/
+  for (int i = 0; i <6; i++) {
+    Serial.println(String(names[i]) + analogRead(pins[i]));
   }
+  delay(1000);
 }
