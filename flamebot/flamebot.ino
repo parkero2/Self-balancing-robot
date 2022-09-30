@@ -8,17 +8,19 @@
 #include "MirfHardwareSpiDriver.h"
 
 //TB6612FNG pin definitions
-int lsp = 5;
-int rsp = 6;
+int lsp = 3;
+int rsp = 5;
 //Left/right drive
-int lf = 7;
-int lb = 8;
-int rf = 4;
-int rb = 3;
+int lf = 6;
+int lb = 4;
+int rf = 7;
+int rb = 2;
 
+//An array to hold temporary values
 int datavalues[6];
-
-Nrf24l Mirf = Nrf24l(A1, A2);
+int motorData[2];
+int data[6];
+Nrf24l Mirf = Nrf24l(10, 9);
 
 void driveSpeed(int lSpeed, int rSpeed = -1) {
   //Calling this method allows for 1 or 2 arguments.
@@ -66,6 +68,7 @@ void setup() {
     Mirf.payload = sizeof(data);
     Mirf.channel = 90;             //Set the used channel
     Mirf.config();
+    Serial.begin(9600);
     Serial.println("Radio frequency initialized");
 }
 
@@ -73,10 +76,11 @@ void loop() {
     if (Mirf.dataReady()) {
         Mirf.getData((byte *) data);//Read data and store to data variable
         //interpret the data
+        Serial.println(data[sizeof(data)-1]);
         datavalues[int(data[0]) + 1] = data[1, sizeof(data) - 1];
     }
-    driveSpeed(abs(int(floor(map(0, 250, -128, 128, datavalues[0])))), abs(int(floor(map(0, 250, -128, 128, datavalues[2])))));
-    if (int(floor(map(0, 250, -128, 128, datavalues[0]))) < 0) {
+    driveSpeed(abs(int(floor(map(0, 250, 0, 1024, datavalues[0])))), abs(int(floor(map(0, 250, 0, 1024, datavalues[2])))));
+    if (int(floor(map(0, 250, 0, 1024, datavalues[0]))) - 512 < 0) {
         digitalWrite(lf, LOW);
         digitalWrite(lb, HIGH);
     }
@@ -84,7 +88,7 @@ void loop() {
         digitalWrite(lf, HIGH);
         digitalWrite(lb, LOW);
     }
-    if (int(floor(map(0, 250, -128, 128, datavalues[2]))) < 0) {
+    if (int(floor(map(0, 250, 0, 1024, datavalues[2]))) - 512 < 0) {
         digitalWrite(rf, LOW);
         digitalWrite(rb, HIGH);
     }

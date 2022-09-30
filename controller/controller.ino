@@ -31,9 +31,9 @@ void setup()
   //Set your own address (sender address) using 5 characters
   Mirf.setRADDR((byte *)"RANGA");
   Mirf.payload = sizeof(value);
-  Mirf.channel = 69;//Set the channel to communicate on
-  Mirf.config();
+  Mirf.channel = 90;//Set the channel to communicate on
   Mirf.setTADDR((byte *) "BALLS");
+  Mirf.config();
   for (int i = 0; i < 6; i++)
   {
     if (i < 4) //These are pins for analog sensors such as joysticks
@@ -52,13 +52,14 @@ void loop() {
     {
       Mirf.send(byte(i + 1) + (byte *) analogRead(pins[i])); //Transmit the data containing the analog joystick positions
       while (Mirf.isSending());//A condition that will stop the controller from continuing it's program until the data is done sending
-      return; //Remove the need for an else statment by telling the controller to ignore the rest of the loop and go back to the for loop
     }
-    Mirf.send(byte(i + 1) + (byte *) digitalRead(pins[i]));
-    while (Mirf.isSending());
+    else {
+      Mirf.send(byte(i + 1) + (byte *) digitalRead(pins[i]));
+      while (Mirf.isSending());
+    }
   }
   for (int i = 0; i <6; i++) {
     Serial.println(String(names[i]) + analogRead(pins[i]));
   }
-  delay(1000);
+  delay(200);
 }
