@@ -59,22 +59,6 @@ void backward() {
   digitalWrite(rb, HIGH);
 }
 
-void rotateR() {
-  motorData[0], motorData[1] = abs(motorData[0]), -abs(motorData[1]);
-  digitalWrite(lf, HIGH);
-  digitalWrite(lb, LOW);
-  digitalWrite(rf, LOW);
-  digitalWrite(rb, HIGH);
-}
-
-void rotatel() {
-  motorData[0], motorData[1] = -abs(motorData[0]), abs(motorData[1]);
-  digitalWrite(lf, LOW);
-  digitalWrite(lb, HIGH);
-  digitalWrite(rf, HIGH);
-  digitalWrite(rb, LOW);
-}
-
 void setup() {
     Mirf.spi = &MirfHardwareSpi;
     Mirf.init();
@@ -100,7 +84,7 @@ void loop() {
         digitalWrite(lf, HIGH);
         digitalWrite(lb, LOW);
     }
-    if (int(floor(map(0, 250, -128, 128, datavalues[1]))) < 0) {
+    if (int(floor(map(0, 250, -128, 128, datavalues[2]))) < 0) {
         digitalWrite(rf, LOW);
         digitalWrite(rb, HIGH);
     }
@@ -116,3 +100,12 @@ void loop() {
     Serial.println("Backward");
     delay(2000);*/
 }
+/**
+ * prefixes
+ * 1 = LJSX
+ * 2 = LJSY
+ * 3 = RJSX
+ * 4 = RJSY
+ * 5 = LSW
+ * 6 = RSW 
+ */

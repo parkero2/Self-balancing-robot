@@ -46,7 +46,7 @@ void setup()
 }
 
 void loop() {
-  /**for (int i = 0; i < 6; i++) //A loop to iterate through the sensors and their values
+  for (int i = 0; i < 6; i++) //A loop to iterate through the sensors and their values
   {
     if (i < 4)
     {
@@ -56,7 +56,7 @@ void loop() {
     }
     Mirf.send(byte(i + 1) + (byte *) digitalRead(pins[i]));
     while (Mirf.isSending());
-  }*/
+  }
   for (int i = 0; i <6; i++) {
     Serial.println(String(names[i]) + analogRead(pins[i]));
   }
